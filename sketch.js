@@ -2,14 +2,12 @@ let capture;
 let faceMesh;
 let faces = [];
 let options = { maxFaces: 1, refineLandmarks: true, flipHorizontal: false };
-let earringImage; // 宣告圖片變數
+let earringImage;
 
-/**
- * preload() 函數會在 setup() 之前執行，用於載入媒體檔案。
- */
 function preload() {
-  earringImage = loadImage('pic/acc1_ring.png'); // 載入耳環圖片
+  earringImage = loadImage('pic/acc1_ring.png');
 }
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   capture = createCapture(VIDEO);
@@ -51,38 +49,55 @@ function draw() {
     let leftPt = face.keypoints[176];
     let rightPt = face.keypoints[400];
 
-    // 設定耳環寬度 (影像寬度的 10%)
-    let imgW = w * 0.10;
-    // 根據圖片原始比例計算高度，避免變形
-    let imgH = imgW * (earringImage.height / earringImage.width);
-
-    // 設定中心對齊，讓耳環中心掛在點上
-    imageMode(CENTER);
-
     if (leftPt) {
       let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
       let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
-      
-      // 繪製黃色圓圈
-      fill(255, 255, 0);
+
+      // 繪製黃色圓圈於左耳垂
+      noFill();
+      stroke(255, 255, 0);
+      strokeWeight(4);
+      circle(lx, ly, 28);
+
+      // 繪製耳環圖案
+      if (earringImage) {
+        imageMode(CENTER);
+        let imgW = w * 0.12;
+        let imgH = imgW * (earringImage.height / earringImage.width);
+        image(earringImage, lx, ly, imgW, imgH);
+        imageMode(CORNER);
+      }
+
+      // 顯示文字標記
       noStroke();
-      circle(lx, ly, 10);
-      
-      // 繪製耳環圖片：將圖片向下移動高度的一半，
-      // 這樣圖片的頂部（金球處）就會剛好對準耳垂點
-      image(earringImage, lx, ly + imgH / 2, imgW, imgH);
+      fill(255, 255, 0);
+      textSize(16);
+      textAlign(CENTER, BOTTOM);
+      text('左耳垂', lx, ly - 18);
     }
     if (rightPt) {
       let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
       let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
 
-      fill(255, 255, 0);
-      circle(rx, ry, 10);
+      noFill();
+      stroke(255, 255, 0);
+      strokeWeight(4);
+      circle(rx, ry, 28);
 
-      image(earringImage, rx, ry + imgH / 2, imgW, imgH);
+      if (earringImage) {
+        imageMode(CENTER);
+        let imgW = w * 0.12;
+        let imgH = imgW * (earringImage.height / earringImage.width);
+        image(earringImage, rx, ry, imgW, imgH);
+        imageMode(CORNER);
+      }
+
+      noStroke();
+      fill(255, 255, 0);
+      textSize(16);
+      textAlign(CENTER, BOTTOM);
+      text('右耳垂', rx, ry - 18);
     }
-    // 恢復預設 imageMode 避免影響其他繪圖
-    imageMode(CORNER);
   }
   pop();
 }
