@@ -62,8 +62,8 @@ function draw() {
   if (faces.length > 0 && capture.width > 0 && capture.elt.readyState >= 2) {
     let face = faces[0];
 
-    // 根據手勢決定要顯示哪個耳環
-    selectedAccessory = null;
+    // 根據手勢決定要顯示哪個耳環，預設為 acc1_ring
+    selectedAccessory = accessoryImages[1];
     if (hands.length > 0) {
       let gestureCount = countExtendedFingers(hands[0]);
       if (gestureCount >= 1 && gestureCount <= 5) {
