@@ -36,28 +36,29 @@ function draw() {
   // 在中心位置繪製影像，寬高為全螢幕的 50%
   image(capture, -w / 2, -h / 2, w, h);
 
-  // 繪製耳垂黃色圓圈
+  // 影像辨識耳垂並繪製黃色圓圈
   // 確保偵測到臉部，且影片寬高已正常讀取（避免 map 產生 NaN）
   if (faces.length > 0 && capture.width > 0) {
     let face = faces[0];
-    // 使用 FaceMesh 索引點：176 與 400 為耳垂區域
-    let leftEarlobe = face.keypoints[176];
-    let rightEarlobe = face.keypoints[400];
+    
+    // MediaPipe FaceMesh 標準索引：176 為左耳垂區域，400 為右耳垂區域
+    let leftPt = face.keypoints[176];
+    let rightPt = face.keypoints[400];
 
     fill(255, 255, 0); // 黃色
     noStroke();
 
-    if (leftEarlobe) {
-      // 將原始影片座標映射到縮放後的繪圖區域
-      let lx = map(leftEarlobe.x, 0, capture.width, -w / 2, w / 2);
-      let ly = map(leftEarlobe.y, 0, capture.height, -h / 2, h / 2);
-      circle(lx, ly, 15);
+    if (leftPt) {
+      // 將偵測點座標從原始影片尺寸映射到畫布中置中且縮放後的影像區域
+      let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
+      let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
+      circle(lx, ly, 20); // 在左耳垂畫出圓圈
     }
-    if (rightEarlobe) {
-      // 同樣處理右耳垂
-      let rx = map(rightEarlobe.x, 0, capture.width, -w / 2, w / 2);
-      let ry = map(rightEarlobe.y, 0, capture.height, -h / 2, h / 2);
-      circle(rx, ry, 15);
+    if (rightPt) {
+      // 同樣處理右耳垂的座標映射
+      let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
+      let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
+      circle(rx, ry, 20); // 在右耳垂畫出圓圈
     }
   }
   pop();
