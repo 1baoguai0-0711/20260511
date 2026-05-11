@@ -18,10 +18,11 @@ function setup() {
 
   // 檢查 ml5 是否載入並初始化
   if (window.ml5 !== undefined) {
-    faceMesh = ml5.faceMesh(capture, options, () => {
+    // ml5 v1 標準初始化：先載入模型，再開始偵測
+    faceMesh = ml5.faceMesh(options, () => {
       console.log("Model Loaded!");
+      faceMesh.detectStart(capture, gotFaces);
     });
-    faceMesh.detectStart(capture, gotFaces);
   } else {
     console.error("ml5.js library not found! Please include it in your HTML.");
   }
@@ -42,15 +43,18 @@ function draw() {
   image(capture, -w / 2, -h / 2, w, h);
 
   // 影像辨識耳垂
-  if (faces.length > 0 && capture.width > 0) {
+  // 確保 capture.width 已準備好，避免 map 出現 NaN
+  if (faces.length > 0 && capture.width > 0 && capture.elt.readyState >= 2) {
     let face = faces[0];
 
     // MediaPipe FaceMesh 標準耳垂索引：176 (左), 400 (右)
     let leftPt = face.keypoints[176];
     let rightPt = face.keypoints[400];
 
-    // 設定耳環大小 (影像寬度的 12%，確保顯眼)
-    let earringSize = w * 0.12;
+    // 設定耳環寬度 (影像寬度的 10%)
+    let imgW = w * 0.10;
+    // 根據圖片原始比例計算高度，避免變形
+    let imgH = imgW * (earringImage.height / earringImage.width);
 
     // 設定中心對齊，讓耳環中心掛在點上
     imageMode(CENTER);
@@ -59,23 +63,23 @@ function draw() {
       let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
       let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
       
-      // 先畫黃色圓圈作保險（如果圖片路徑錯了，至少圓圈會出現）
+      // 繪製黃色圓圈
       fill(255, 255, 0);
       noStroke();
-      circle(lx, ly, 15);
+      circle(lx, ly, 10);
       
-      // 繪製耳環圖片
-      // 稍微向下偏移 (earringSize/2) 讓耳環頂部掛在耳垂上
-      image(earringImage, lx, ly + earringSize/3, earringSize, earringSize);
+      // 繪製耳環圖片：將圖片向下移動高度的一半，
+      // 這樣圖片的頂部（金球處）就會剛好對準耳垂點
+      image(earringImage, lx, ly + imgH / 2, imgW, imgH);
     }
     if (rightPt) {
       let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
       let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
 
       fill(255, 255, 0);
-      circle(rx, ry, 15);
+      circle(rx, ry, 10);
 
-      image(earringImage, rx, ry + earringSize/3, earringSize, earringSize);
+      image(earringImage, rx, ry + imgH / 2, imgW, imgH);
     }
     // 恢復預設 imageMode 避免影響其他繪圖
     imageMode(CORNER);
