@@ -18,13 +18,10 @@ function setup() {
 
   // 檢查 ml5 是否載入並初始化
   if (window.ml5 !== undefined) {
-    faceMesh = ml5.faceMesh(options, () => {
+    faceMesh = ml5.faceMesh(capture, options, () => {
       console.log("Model Loaded!");
-      // 確保影片已經準備好寬高才開始偵測
-      capture.elt.onloadedmetadata = () => {
-        faceMesh.detectStart(capture, gotFaces);
-      };
     });
+    faceMesh.detectStart(capture, gotFaces);
   } else {
     console.error("ml5.js library not found! Please include it in your HTML.");
   }
@@ -44,30 +41,31 @@ function draw() {
   // 在中心位置繪製影像，寬高為全螢幕的 50%
   image(capture, -w / 2, -h / 2, w, h);
 
-  // 影像辨識耳垂並繪製耳環圖片
+  // 影像辨識耳垂
   if (faces.length > 0 && capture.width > 0) {
     let face = faces[0];
 
-    // 使用更穩定的耳部邊緣索引點：234 (左耳區域), 454 (右耳區域)
-    let leftPt = face.keypoints[234];
-    let rightPt = face.keypoints[454];
+    // MediaPipe FaceMesh 標準耳垂索引：176 (左), 400 (右)
+    let leftPt = face.keypoints[176];
+    let rightPt = face.keypoints[400];
 
-    // 設定耳環大小 (影像寬度的 8%，稍微加大以便觀察)
-    let earringSize = w * 0.08;
+    // 設定耳環大小 (影像寬度的 12%，確保顯眼)
+    let earringSize = w * 0.12;
 
-    // 設定繪圖模式為中心，這樣圖片中心會剛好在耳垂點上
+    // 設定中心對齊，讓耳環中心掛在點上
     imageMode(CENTER);
 
     if (leftPt) {
       let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
       let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
       
-      // 繪製黃色圓圈底色 (確認位置用)
+      // 先畫黃色圓圈作保險（如果圖片路徑錯了，至少圓圈會出現）
       fill(255, 255, 0);
       noStroke();
-      circle(lx, ly, 10);
+      circle(lx, ly, 15);
       
-      // 繪製耳環圖片 (向下偏移一點點讓它看起來像掛著)
+      // 繪製耳環圖片
+      // 稍微向下偏移 (earringSize/2) 讓耳環頂部掛在耳垂上
       image(earringImage, lx, ly + earringSize/3, earringSize, earringSize);
     }
     if (rightPt) {
@@ -75,7 +73,7 @@ function draw() {
       let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
 
       fill(255, 255, 0);
-      circle(rx, ry, 10);
+      circle(rx, ry, 15);
 
       image(earringImage, rx, ry + earringSize/3, earringSize, earringSize);
     }
