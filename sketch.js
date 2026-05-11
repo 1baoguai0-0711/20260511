@@ -6,6 +6,7 @@ let hands = [];
 let options = { maxFaces: 1, refineLandmarks: true, flipHorizontal: false };
 let accessoryImages = {};
 let selectedAccessory = null;
+let faceStickers = {};
 
 function preload() {
   accessoryImages[1] = loadImage('pic/acc1_ring.png');
@@ -13,6 +14,9 @@ function preload() {
   accessoryImages[3] = loadImage('pic/acc3_tassel.png');
   accessoryImages[4] = loadImage('pic/acc4_jade.png');
   accessoryImages[5] = loadImage('pic/acc5_phoenix.png');
+  
+  faceStickers['default'] = loadImage('pic/臉譜4379901.png');
+  faceStickers['handNear'] = loadImage('pic/臉譜4379902.png');
 }
 
 function setup() {
@@ -57,10 +61,40 @@ function draw() {
   // 在中心位置繪製影像，寬高為全螢幕的 50%
   image(capture, -w / 2, -h / 2, w, h);
 
-  // 影像辨識耳垂
-  // 確保 capture.width 已準備好，避免 map 出現 NaN
+  // 臉部辨識與貼紙、耳環顯示
   if (faces.length > 0 && capture.width > 0 && capture.elt.readyState >= 2) {
     let face = faces[0];
+    
+    // 計算臉部中心位置（使用鼻子點作為參考）
+    let nosePt = face.keypoints && face.keypoints[1] ? face.keypoints[1] : null;
+    let faceCenter = null;
+    if (nosePt) {
+      faceCenter = {
+        x: map(nosePt.x, 0, capture.width, -w / 2, w / 2),
+        y: map(nosePt.y, 0, capture.height, -h / 2, h / 2)
+      };
+    }
+    
+    // 判斷手是否靠近臉部
+    let handNearFace = false;
+    if (hands.length > 0 && faceCenter) {
+      let handPalmBase = hands[0].landmarks ? hands[0].landmarks[0] : null;
+      if (handPalmBase) {
+        let handX = map(handPalmBase[0], 0, capture.width, -w / 2, w / 2);
+        let handY = map(handPalmBase[1], 0, capture.height, -h / 2, h / 2);
+        let dist2Face = dist(handX, handY, faceCenter.x, faceCenter.y);
+        handNearFace = dist2Face < w * 0.2; // 手距離臉部 20% 寬度內視為靠近
+      }
+    }
+    
+    // 選擇並顯示臉譜貼紙
+    let faceSticker = handNearFace ? faceStickers['handNear'] : faceStickers['default'];
+    if (faceCenter && faceSticker) {
+      imageMode(CENTER);
+      let stickerW = w * 0.8;
+      let stickerH = stickerW * (faceSticker.height / faceSticker.width);
+      image(faceSticker, faceCenter.x, faceCenter.y, stickerW, stickerH);
+    }
 
     // 根據手勢決定要顯示哪個耳環，預設為 acc1_ring
     selectedAccessory = accessoryImages[1];
