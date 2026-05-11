@@ -67,13 +67,6 @@ function draw() {
         image(earringImage, lx, ly, imgW, imgH);
         imageMode(CORNER);
       }
-
-      // 顯示文字標記
-      noStroke();
-      fill(255, 255, 0);
-      textSize(16);
-      textAlign(CENTER, BOTTOM);
-      text('左耳垂', lx, ly - 18);
     }
     if (rightPt) {
       let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
@@ -91,12 +84,6 @@ function draw() {
         image(earringImage, rx, ry, imgW, imgH);
         imageMode(CORNER);
       }
-
-      noStroke();
-      fill(255, 255, 0);
-      textSize(16);
-      textAlign(CENTER, BOTTOM);
-      text('右耳垂', rx, ry - 18);
     }
   }
   pop();
