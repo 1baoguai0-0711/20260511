@@ -2,7 +2,14 @@ let capture;
 let faceMesh;
 let faces = [];
 let options = { maxFaces: 1, refineLandmarks: true, flipHorizontal: false };
+let earringImage; // 宣告圖片變數
 
+/**
+ * preload() 函數會在 setup() 之前執行，用於載入媒體檔案。
+ */
+function preload() {
+  earringImage = loadImage('pic/acc1_ring.png'); // 載入耳環圖片
+}
 function setup() {
   createCanvas(windowWidth, windowHeight);
   capture = createCapture(VIDEO);
@@ -35,32 +42,31 @@ function draw() {
   scale(-1, 1);
   // 在中心位置繪製影像，寬高為全螢幕的 50%
   image(capture, -w / 2, -h / 2, w, h);
-
-  // 影像辨識耳垂並繪製黃色圓圈
+  
+  // 影像辨識耳垂並繪製耳環圖片
   // 確保偵測到臉部，且影片寬高已正常讀取（避免 map 產生 NaN），且影片已就緒
   if (faces.length > 0 && capture.width > 0 && capture.elt.readyState >= 2) {
     let face = faces[0];
     
     // 取得耳垂關鍵點 (176 左, 400 右)
     // 註：在鏡像模式下，偵測到的 leftPt 會對應到畫面上的右側，這是正確的
-    let leftPt = face.keypoints[176]; 
+    let leftPt = face.keypoints[176];
     let rightPt = face.keypoints[400];
-
-    fill(255, 255, 0); // 黃色
-    stroke(0); // 增加黑色邊框讓它更明顯
-    strokeWeight(1);
+    
+    // 設定耳環圖片的大小，這裡設定為顯示影像寬度的 5%
+    let earringSize = w * 0.05; 
 
     if (leftPt) {
       // 將偵測點座標從原始影片尺寸映射到畫布中置中且縮放後的影像區域
-      let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
-      let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
-      circle(lx, ly, 20); // 在左耳垂畫出圓圈
+      let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2); // 映射 X 座標
+      let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2); // 映射 Y 座標
+      image(earringImage, lx - earringSize / 2, ly - earringSize / 2, earringSize, earringSize); // 在左耳垂繪製耳環圖片
     }
     if (rightPt) {
       // 同樣處理右耳垂的座標映射
       let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
       let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
-      circle(rx, ry, 20); // 在右耳垂畫出圓圈
+      image(earringImage, rx - earringSize / 2, ry - earringSize / 2, earringSize, earringSize); // 在右耳垂繪製耳環圖片
     }
   }
   pop();
