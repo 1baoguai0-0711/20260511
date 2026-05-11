@@ -66,7 +66,9 @@ function draw() {
     selectedAccessory = null;
     if (hands.length > 0) {
       let gestureCount = countExtendedFingers(hands[0]);
-      selectedAccessory = accessoryImages[gestureCount] || null;
+      if (gestureCount >= 1 && gestureCount <= 5) {
+        selectedAccessory = accessoryImages[gestureCount];
+      }
     }
 
     // MediaPipe FaceMesh 標準耳垂索引：176 (左), 400 (右)
