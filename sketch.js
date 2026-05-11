@@ -90,7 +90,6 @@ function draw() {
         let imgW = w * 0.12;
         let imgH = imgW * (selectedAccessory.height / selectedAccessory.width);
         image(selectedAccessory, lx, ly, imgW, imgH);
-        imageMode(CORNER);
       }
     }
     if (rightPt) {
@@ -107,9 +106,9 @@ function draw() {
         let imgW = w * 0.12;
         let imgH = imgW * (selectedAccessory.height / selectedAccessory.width);
         image(selectedAccessory, rx, ry, imgW, imgH);
-        imageMode(CORNER);
       }
     }
+    imageMode(CORNER);
   }
   pop();
 }
