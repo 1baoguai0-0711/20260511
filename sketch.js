@@ -75,6 +75,12 @@ function draw() {
     let leftPt = face.keypoints[176];
     let rightPt = face.keypoints[400];
 
+    let accessory = selectedAccessory;
+    let imgW = accessory ? w * 0.12 : 0;
+    let imgH = accessory ? imgW * (accessory.height / accessory.width) : 0;
+
+    imageMode(CENTER);
+
     if (leftPt) {
       let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
       let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
@@ -85,13 +91,11 @@ function draw() {
       strokeWeight(4);
       circle(lx, ly, 28);
 
-      if (selectedAccessory) {
-        imageMode(CENTER);
-        let imgW = w * 0.12;
-        let imgH = imgW * (selectedAccessory.height / selectedAccessory.width);
-        image(selectedAccessory, lx, ly, imgW, imgH);
+      if (accessory) {
+        image(accessory, lx, ly, imgW, imgH);
       }
     }
+
     if (rightPt) {
       let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
       let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
@@ -101,13 +105,11 @@ function draw() {
       strokeWeight(4);
       circle(rx, ry, 28);
 
-      if (selectedAccessory) {
-        imageMode(CENTER);
-        let imgW = w * 0.12;
-        let imgH = imgW * (selectedAccessory.height / selectedAccessory.width);
-        image(selectedAccessory, rx, ry, imgW, imgH);
+      if (accessory) {
+        image(accessory, rx, ry, imgW, imgH);
       }
     }
+
     imageMode(CORNER);
   }
   pop();
