@@ -106,7 +106,8 @@ function draw() {
       circle(lx, ly, 28);
 
       if (accessory) {
-        image(accessory, lx, ly, imgW, imgH);
+        let deltaY = imgH * 0.2; // 調整耳環位置向下一點
+        image(accessory, lx, ly + deltaY, imgW, imgH);
       }
     }
 
@@ -120,7 +121,8 @@ function draw() {
       circle(rx, ry, 28);
 
       if (accessory) {
-        image(accessory, rx, ry, imgW, imgH);
+        let deltaY = imgH * 0.2; // 調整耳環位置向下一點
+        image(accessory, rx, ry + deltaY, imgW, imgH);
       }
     }
 
