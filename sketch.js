@@ -130,18 +130,28 @@ function gotHands(results) {
 function countExtendedFingers(hand) {
   if (!hand || !hand.landmarks) return 0;
   let lm = hand.landmarks;
-  let wrist = lm[0];
-  let tips = [4, 8, 12, 16, 20];
-  let dips = [3, 7, 11, 15, 19];
   let extended = 0;
-  for (let i = 0; i < tips.length; i++) {
-    let tip = lm[tips[i]];
-    let dip = lm[dips[i]];
-    let distTip = dist(tip[0], tip[1], wrist[0], wrist[1]);
-    let distDip = dist(dip[0], dip[1], wrist[0], wrist[1]);
-    if (distTip > distDip * 1.1) {
+
+  // 依照手指伸展程度判斷：如果指尖高於 PIP 關節，視為伸直
+  let fingerTips = [8, 12, 16, 20];
+  let fingerPIPs = [6, 10, 14, 18];
+  for (let i = 0; i < fingerTips.length; i++) {
+    let tip = lm[fingerTips[i]];
+    let pip = lm[fingerPIPs[i]];
+    if (tip[1] < pip[1] - 8) {
       extended++;
     }
   }
+
+  // 判斷大拇指是否伸直：大拇指指尖與腕部距離比 IP 關節與腕部距離還大
+  let wrist = lm[0];
+  let thumbTip = lm[4];
+  let thumbIp = lm[3];
+  let distTip = dist(thumbTip[0], thumbTip[1], wrist[0], wrist[1]);
+  let distIp = dist(thumbIp[0], thumbIp[1], wrist[0], wrist[1]);
+  if (distTip > distIp * 1.1) {
+    extended++;
+  }
+
   return extended;
 }
