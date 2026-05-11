@@ -29,11 +29,15 @@ function setup() {
       faceMesh.detectStart(capture, gotFaces);
     });
 
-    // Handpose 模型
-    handpose = ml5.handpose(capture, () => {
-      console.log("Handpose Loaded!");
-    });
-    handpose.on('predict', gotHands);
+    // Handpose 模型（若可用才載入）
+    if (ml5.handpose !== undefined) {
+      handpose = ml5.handpose(capture, () => {
+        console.log("Handpose Loaded!");
+      });
+      handpose.on('predict', gotHands);
+    } else {
+      console.warn("ml5 handpose model not available. Hand gesture detection disabled.");
+    }
   } else {
     console.error("ml5.js library not found! Please include it in your HTML.");
   }
