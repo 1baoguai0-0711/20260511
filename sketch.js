@@ -1,7 +1,7 @@
 let capture;
 let faceMesh;
 let faces = [];
-let options = { maxFaces: 1, refineLandmarks: false, flipHorizontal: false };
+let options = { maxFaces: 1, refineLandmarks: true, flipHorizontal: false };
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -11,12 +11,12 @@ function setup() {
 
   // 檢查 ml5 程式庫是否成功載入
   if (window.ml5 !== undefined) {
-    // 初始化 FaceMesh
-    faceMesh = ml5.faceMesh(capture, options, () => {
+    // 初始化 FaceMesh (ml5 v1 標準寫法)
+    faceMesh = ml5.faceMesh(options, () => {
       console.log("Model Loaded!");
+      // 開始持續偵測
+      faceMesh.detectStart(capture, gotFaces);
     });
-    // 開始持續偵測
-    faceMesh.detectStart(capture, gotFaces);
   } else {
     console.error("ml5.js library not found! Please include it in your HTML.");
   }
@@ -37,16 +37,18 @@ function draw() {
   image(capture, -w / 2, -h / 2, w, h);
 
   // 影像辨識耳垂並繪製黃色圓圈
-  // 確保偵測到臉部，且影片寬高已正常讀取（避免 map 產生 NaN）
-  if (faces.length > 0 && capture.width > 0) {
+  // 確保偵測到臉部，且影片寬高已正常讀取（避免 map 產生 NaN），且影片已就緒
+  if (faces.length > 0 && capture.width > 0 && capture.elt.readyState >= 2) {
     let face = faces[0];
     
-    // MediaPipe FaceMesh 標準索引：176 為左耳垂區域，400 為右耳垂區域
-    let leftPt = face.keypoints[176];
+    // 取得耳垂關鍵點 (176 左, 400 右)
+    // 註：在鏡像模式下，偵測到的 leftPt 會對應到畫面上的右側，這是正確的
+    let leftPt = face.keypoints[176]; 
     let rightPt = face.keypoints[400];
 
     fill(255, 255, 0); // 黃色
-    noStroke();
+    stroke(0); // 增加黑色邊框讓它更明顯
+    strokeWeight(1);
 
     if (leftPt) {
       // 將偵測點座標從原始影片尺寸映射到畫布中置中且縮放後的影像區域
