@@ -15,8 +15,8 @@ function preload() {
   accessoryImages[4] = loadImage('pic/acc4_jade.png');
   accessoryImages[5] = loadImage('pic/acc5_phoenix.png');
   
-  faceStickers['default'] = loadImage('pic/臉譜/4379901.png');
-  faceStickers['handNear'] = loadImage('pic/臉譜/4379902.png');
+  faceStickers['default'] = loadImage('pic/face_01.png');
+  faceStickers['handNear'] = loadImage('pic/face_02.png');
 }
 
 function setup() {
