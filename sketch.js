@@ -16,13 +16,14 @@ function setup() {
   // 隱藏預設產生的 HTML 影片元件，只在畫布上繪製
   capture.hide();
 
-  // 檢查 ml5 程式庫是否成功載入
+  // 檢查 ml5 是否載入並初始化
   if (window.ml5 !== undefined) {
-    // 初始化 FaceMesh (ml5 v1 標準寫法)
     faceMesh = ml5.faceMesh(options, () => {
       console.log("Model Loaded!");
-      // 開始持續偵測
-      faceMesh.detectStart(capture, gotFaces);
+      // 確保影片已經準備好寬高才開始偵測
+      capture.elt.onloadedmetadata = () => {
+        faceMesh.detectStart(capture, gotFaces);
+      };
     });
   } else {
     console.error("ml5.js library not found! Please include it in your HTML.");
@@ -42,32 +43,44 @@ function draw() {
   scale(-1, 1);
   // 在中心位置繪製影像，寬高為全螢幕的 50%
   image(capture, -w / 2, -h / 2, w, h);
-  
+
   // 影像辨識耳垂並繪製耳環圖片
-  // 確保偵測到臉部，且影片寬高已正常讀取（避免 map 產生 NaN），且影片已就緒
-  if (faces.length > 0 && capture.width > 0 && capture.elt.readyState >= 2) {
+  if (faces.length > 0 && capture.width > 0) {
     let face = faces[0];
-    
-    // 取得耳垂關鍵點 (176 左, 400 右)
-    // 註：在鏡像模式下，偵測到的 leftPt 會對應到畫面上的右側，這是正確的
-    let leftPt = face.keypoints[176];
-    let rightPt = face.keypoints[400];
-    
-    // 設定耳環圖片的大小，這裡設定為顯示影像寬度的 5%
-    let earringSize = w * 0.05; 
+
+    // 使用更穩定的耳部邊緣索引點：234 (左耳區域), 454 (右耳區域)
+    let leftPt = face.keypoints[234];
+    let rightPt = face.keypoints[454];
+
+    // 設定耳環大小 (影像寬度的 8%，稍微加大以便觀察)
+    let earringSize = w * 0.08;
+
+    // 設定繪圖模式為中心，這樣圖片中心會剛好在耳垂點上
+    imageMode(CENTER);
 
     if (leftPt) {
-      // 將偵測點座標從原始影片尺寸映射到畫布中置中且縮放後的影像區域
-      let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2); // 映射 X 座標
-      let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2); // 映射 Y 座標
-      image(earringImage, lx - earringSize / 2, ly - earringSize / 2, earringSize, earringSize); // 在左耳垂繪製耳環圖片
+      let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
+      let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
+      
+      // 繪製黃色圓圈底色 (確認位置用)
+      fill(255, 255, 0);
+      noStroke();
+      circle(lx, ly, 10);
+      
+      // 繪製耳環圖片 (向下偏移一點點讓它看起來像掛著)
+      image(earringImage, lx, ly + earringSize/3, earringSize, earringSize);
     }
     if (rightPt) {
-      // 同樣處理右耳垂的座標映射
       let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
       let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
-      image(earringImage, rx - earringSize / 2, ry - earringSize / 2, earringSize, earringSize); // 在右耳垂繪製耳環圖片
+
+      fill(255, 255, 0);
+      circle(rx, ry, 10);
+
+      image(earringImage, rx, ry + earringSize/3, earringSize, earringSize);
     }
+    // 恢復預設 imageMode 避免影響其他繪圖
+    imageMode(CORNER);
   }
   pop();
 }
