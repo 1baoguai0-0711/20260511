@@ -99,12 +99,6 @@ function draw() {
       let lx = map(leftPt.x, 0, capture.width, -w / 2, w / 2);
       let ly = map(leftPt.y, 0, capture.height, -h / 2, h / 2);
 
-      // 繪製黃色圓圈於左耳垂
-      noFill();
-      stroke(255, 255, 0);
-      strokeWeight(4);
-      circle(lx, ly, 28);
-
       if (accessory) {
         let deltaY = imgH * 0.2; // 調整耳環位置向下一點
         image(accessory, lx, ly + deltaY, imgW, imgH);
@@ -114,11 +108,6 @@ function draw() {
     if (rightPt) {
       let rx = map(rightPt.x, 0, capture.width, -w / 2, w / 2);
       let ry = map(rightPt.y, 0, capture.height, -h / 2, h / 2);
-
-      noFill();
-      stroke(255, 255, 0);
-      strokeWeight(4);
-      circle(rx, ry, 28);
 
       if (accessory) {
         let deltaY = imgH * 0.2; // 調整耳環位置向下一點
