@@ -71,9 +71,23 @@ function draw() {
       }
     }
 
-    // MediaPipe FaceMesh 標準耳垂索引：176 (左), 400 (右)
-    let leftPt = face.keypoints[176];
-    let rightPt = face.keypoints[400];
+    // 優先使用 annotations 的耳朵位置，否則使用預設 FaceMesh 耳朵索引
+    let leftPt = null;
+    let rightPt = null;
+    if (face.annotations) {
+      if (face.annotations.leftEar && face.annotations.leftEar.length > 0) {
+        leftPt = face.annotations.leftEar[0];
+      }
+      if (face.annotations.rightEar && face.annotations.rightEar.length > 0) {
+        rightPt = face.annotations.rightEar[0];
+      }
+    }
+    if (!leftPt && face.keypoints && face.keypoints[234]) {
+      leftPt = face.keypoints[234];
+    }
+    if (!rightPt && face.keypoints && face.keypoints[454]) {
+      rightPt = face.keypoints[454];
+    }
 
     let accessory = selectedAccessory;
     let imgW = accessory ? w * 0.12 : 0;
