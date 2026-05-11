@@ -10,7 +10,7 @@ function setup() {
   capture.hide();
 
   // 檢查 ml5 程式庫是否成功載入
-  if (typeof ml5 !== 'undefined') {
+  if (window.ml5 !== undefined) {
     // 初始化 FaceMesh
     faceMesh = ml5.faceMesh(capture, options, () => {
       console.log("Model Loaded!");
@@ -36,11 +36,11 @@ function draw() {
   // 在中心位置繪製影像，寬高為全螢幕的 50%
   image(capture, -w / 2, -h / 2, w, h);
 
-  // 繪製耳垂圓圈
+  // 繪製耳垂黃色圓圈
   // 確保偵測到臉部，且影片寬高已正常讀取（避免 map 產生 NaN）
   if (faces.length > 0 && capture.width > 0) {
     let face = faces[0];
-    // 176 是左耳垂附近, 400 是右耳垂附近
+    // 使用 FaceMesh 索引點：176 與 400 為耳垂區域
     let leftEarlobe = face.keypoints[176];
     let rightEarlobe = face.keypoints[400];
 
@@ -48,11 +48,13 @@ function draw() {
     noStroke();
 
     if (leftEarlobe) {
+      // 將原始影片座標映射到縮放後的繪圖區域
       let lx = map(leftEarlobe.x, 0, capture.width, -w / 2, w / 2);
       let ly = map(leftEarlobe.y, 0, capture.height, -h / 2, h / 2);
       circle(lx, ly, 15);
     }
     if (rightEarlobe) {
+      // 同樣處理右耳垂
       let rx = map(rightEarlobe.x, 0, capture.width, -w / 2, w / 2);
       let ry = map(rightEarlobe.y, 0, capture.height, -h / 2, h / 2);
       circle(rx, ry, 15);
